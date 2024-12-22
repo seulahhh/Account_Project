@@ -1,12 +1,15 @@
 package com.example.account.controller;
 
-import com.example.account.domain.Account;
+import com.example.account.dto.AccountDto;
+import com.example.account.dto.CreateAccount;
 import com.example.account.service.AccountService;
 import com.example.account.service.RedisTestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,20 +17,29 @@ public class AccountController {
     private final AccountService accountService;
     private final RedisTestService redisTestService;
 
-    @GetMapping("/get-lock")
-    public String getLock() {
-        return redisTestService.getLock();
+    // 계좌 생성
+    @PostMapping("/account")
+    public CreateAccount.Response createAccount(@RequestBody @Valid CreateAccount.Request request) {
+        AccountDto accountDto =
+                accountService.createAccount(request.getUserId(),
+                        request.getInitBalance());
+        // 받은 accountDto를 가지고 Response 객체 만들기
+        // => Reponse객체에 해당 메서드 정의 (public static Response from(AccountDto
+        // accountDto))
+        // 위 accountDto와 같은 일회용 변수는 사용하지 않고 바로 inline valriable 해버려도 되지만 현재
+        // 명시적으로 나타내기 위해 남겨두었음
+
+        return CreateAccount.Response.from(accountDto);
     }
 
-    @GetMapping("/create-account")
-    public String createAccount() {
-        accountService.createAccount();
-        return "success";
-    }
+    //    @GetMapping("/get-lock")
+    //    public String getLock() {
+    //        return redisTestService.getLock();
+    //    }
 
-    @GetMapping("/account/{id}")
-    public Account getAccount(
-            @PathVariable Long id){
-        return accountService.getAccount(id);
-    }
+    //    @GetMapping("/account/{id}")
+    //    public Account getAccount(
+    //            @PathVariable Long id){
+    //        return accountService.getAccount(id);
+    //    }
 }
