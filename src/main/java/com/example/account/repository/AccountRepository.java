@@ -18,11 +18,19 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
 
     Integer countByAccountUser(AccountUser accountUser);
-
-    Optional<Account> findByAccountNumber(String accountNumber);
     // Account객체가 AccountUser 필드를 가짐
     // ==> DB관점에서, Account 테이블의 column에 AccountUser가 있다는 의미
     // 따라서 accountUser를 기준으로 Account 개수를 조회할 수 있다.
+
+    Optional<Account> findByAccountNumber(String accountNumber);
+
+    List<Account> findByAccountUser(AccountUser accountUser);
+
+    String AccountNumber(String accountNumber);
+    // countByAcountUser와 같은 원리로 accountUser를 기준으로 accountUser가 가진
+    // account들의 List를 조회할 수 있음
+
+
 
 //    List<Account> getAllByUpdatedAtNotEmpty(LocalDateTime updatedAt);
 }

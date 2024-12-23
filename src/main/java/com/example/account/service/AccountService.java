@@ -6,20 +6,23 @@ import com.example.account.dto.AccountDto;
 import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
-import com.example.account.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.example.account.type.AccountStatus.IN_USE;
 import static com.example.account.type.AccountStatus.UNREGISTERED;
+import static com.example.account.type.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 public class AccountService {
+
     private final AccountRepository accountRepository; // 자동주입됨
     private final AccountUserRepository accountUserRepository; // 자동주입
 
@@ -31,7 +34,7 @@ public class AccountService {
     public AccountDto createAccount(Long userId, Long initBalance) {
         // 사용자가 있는지 확인
 
-        AccountUser accountUser = accountUserRepository.findById(userId).orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+        AccountUser accountUser = accountUserRepository.findById(userId).orElseThrow(() -> new AccountException(USER_NOT_FOUND));
         // ↪︎ accountUser가 있으면 accountUser로 받고, 없으면 .orElseThrow가 동작해서 예외를
         // 던져주게 된다.
 
@@ -59,7 +62,7 @@ public class AccountService {
     private void validateCreateAccount(AccountUser accountUser) {
         // 계좌가 10개 미만인지 확인
         if (accountRepository.countByAccountUser(accountUser) == 10) {
-            throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
+            throw new AccountException(MAX_ACCOUNT_PER_USER_10);
         }
     }
 
@@ -73,8 +76,8 @@ public class AccountService {
 
     @Transactional
     public AccountDto deleteAccount(Long userId, String accountNumber) {
-        AccountUser accountUser = accountUserRepository.findById(userId).orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
-        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
+        AccountUser accountUser = accountUserRepository.findById(userId).orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountException(USER_ACCOUNT_NOT_FOUND));
 
         // 응답 정책에 따른 validation 처리.
         validateDeleteAccount(accountUser, account);
@@ -97,17 +100,29 @@ public class AccountService {
         // accountUser : 요청으로 전달받은 "id" 로 검색한 사용자 정보
         // account.getAccountUser() : 요청을 전달받은 "계좌번호"를 통해 검색한 account에 저장된 사용자 정보
         if (!Objects.equals(accountUser.getId(), account.getAccountUser().getId())) {
-            throw new AccountException(ErrorCode.USER_ACCOUNT_UN_MATCH);
+            throw new AccountException(USER_ACCOUNT_UN_MATCH);
         }
 
         // [case] 계좌가 이미 해지 상태인 경우
         if (account.getAccountStatus() == UNREGISTERED) {
-            throw new AccountException(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED);
+            throw new AccountException(ACCOUNT_ALREADY_UNREGISTERED);
         }
 
         // [case] 계좌에 잔액이 있는 경우
         if (account.getBalance() > 0) {
-            throw new AccountException(ErrorCode.BALANCE_NOT_EMPTY);
+            throw new AccountException(BALANCE_NOT_EMPTY);
         }
+    }
+
+    @Transactional
+    public List<AccountDto> getAccountsByUserId(Long userId) {
+
+        AccountUser accountUser =
+                accountUserRepository.findById(userId).orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+
+        List<Account> accounts = accountRepository.findByAccountUser(accountUser);
+
+        return accounts.stream().map(AccountDto::fromEntity).collect(Collectors.toList());
+        // == return accounts.stream().map(account -> AccountDto.fromEntity(account)).collect(Collectors.toList());
     }
 }

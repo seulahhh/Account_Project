@@ -1,6 +1,8 @@
 package com.example.account.domain;
 
+import com.example.account.exception.AccountException;
 import com.example.account.type.AccountStatus;
+import com.example.account.type.ErrorCode;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,7 +13,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -46,4 +47,21 @@ public class Account {
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    // 이처럼 balance를 변경 하는 등 중요한 정보를 수정하는 로직은
+    // Getter, Setter를 이용하기보다 이렇게 객체 안에 직접 메서드를 정의해서
+    // 사용하는것이 안전하다.
+    public void useBalance(Long amount) {
+        if (amount > balance) {
+            throw new AccountException(ErrorCode.AMOUNT_EXCEED_BALANCE);
+        }
+        balance -= amount;
+    }
+
+    public void cancelBalance(Long amount) {
+        if (amount < 0) {
+            throw new AccountException(ErrorCode.INVALID_REQUEST);
+        }
+        balance += amount;
+    }
 }
