@@ -21,10 +21,8 @@ public class AccountUser {
     @GeneratedValue
     private Long id;
 
-    // user의 특수한 데이터
     private String name;
 
-    // id, createdAt, updastedAt은 테이블마다 종종 default로 가져가는 컬럼이다.
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate

@@ -47,25 +47,19 @@ public class TransactionService {
     }
 
     private void validateUseBalance(AccountUser accountUser, Account account, Long amount) {
-        // 사용자가 없는 경우는 accountUser를 찾아오는 과정에서 이미 filtering 되었음
-
-        // [case] 사용자와 계좌의 소유주가 다른 경우
         if (!Objects.equals(accountUser.getId(), account.getAccountUser().getId())) {
             throw new AccountException(USER_ACCOUNT_UN_MATCH);
         }
 
-        // [case] 계좌가 이미 해지 상태인 경우
         if (account.getAccountStatus() != AccountStatus.IN_USE) {
             throw new AccountException(ACCOUNT_ALREADY_UNREGISTERED);
         }
 
-        // [case] 거래금액이 잔액보다 큰 경우
         if (account.getBalance() < amount) {
             throw new AccountException(AMOUNT_EXCEED_BALANCE);
         }
     }
 
-    // 개발도중, 혹은 프로그램 실행 도중 바뀔 수 있는 것들은 @Transactional 애노테이션을 달아줌
     @Transactional
     public void saveFailedUseTransaction(String accountNumber, Long amount) {
         Account account =  accountRepository.findByAccountNumber(accountNumber)
@@ -74,7 +68,6 @@ public class TransactionService {
         saveAndGetTransaction(TransactionType.USE, F, account, amount);
     }
 
-    // Transaction 객체를 get/save 하는 부분을 메서드로 따로 뽑아서 공통화 해줌
     private Transaction saveAndGetTransaction(TransactionType transactionType, TransactionResultType transactionResultType, Account account, Long amount) {
         return transactionRepository.save(
                 Transaction.builder()
@@ -109,22 +102,17 @@ public class TransactionService {
     }
 
     private void validateCancelBalance(Transaction transaction, Account account, Long amount) {
-        // [case] 사용자와 계좌의 소유주가 다른 경우
         if (!Objects.equals(transaction.getAccount().getId(), account.getId())) {
             throw new AccountException(TRANSACTION_ACCOUNT_UN_MATCH);
         }
 
-        // [case] 요청으로 받은 취소금액과, 사용했던 금액이 일치하지 않는 경우(== 부분취소 시도)
         if (!Objects.equals(transaction.getAmount(), amount)) {
             throw new AccountException(CANCEL_MUST_FULLY);
         }
 
-        // [case] 거래날짜가 1년이 지난 경우
         if (transaction.getTransactedAt().isBefore(LocalDateTime.now().minusYears(1)) ) {
             throw new AccountException(TOO_OLD_ORDER_TO_CANCEL);
         }
-        // ? isBefore: LocalDateTime의 기능. parameter로 넣어주는 시간이 LocalDateTime객체보다
-        // ? 이전인지 아닌지 확인하는 메서
     }
 
     @Transactional

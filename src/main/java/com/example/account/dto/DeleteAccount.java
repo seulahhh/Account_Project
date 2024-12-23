@@ -20,7 +20,6 @@ public class DeleteAccount {
         @NotBlank
         @Size(min = 10, max = 10)
         private String accountNumber;
-//        @Size @NotNull, @NotBlank, @Min 등은 Controller에서 요청을 받아서 Valid 를 수행할때 작동된다.
 
     }
 

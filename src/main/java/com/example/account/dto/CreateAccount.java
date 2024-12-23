@@ -19,7 +19,7 @@ public class CreateAccount {
         private Long userId;
 
         @NotNull
-//        @Min(100)
+        @Min(100)
         private Long initBalance;
     }
 
@@ -33,8 +33,6 @@ public class CreateAccount {
         private String accountNumber;
         private LocalDateTime registeredAt;
 
-        // Response 내부에서도 AccountDto를 활용하여 Response를 반환하는 메서드를 정의
-        //(마찬가지로 생성자를 사용하지 않고 이 방식으로 Response를 생성)
         public static Response from(AccountDto accountDto) {
             return Response.builder()
                     .userId(accountDto.getUserId())

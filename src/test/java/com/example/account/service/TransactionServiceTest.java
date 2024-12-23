@@ -45,7 +45,6 @@ class TransactionServiceTest {
     @Mock
     private AccountUserRepository accountUserRepository;
 
-    // transactionService에서 주입받는 객체를 mock으로 생성한 뒤 transactionservice에 주입
     @InjectMocks
     private TransactionService transactionService;
 
@@ -85,15 +84,12 @@ class TransactionServiceTest {
 
 
         //then
-        // 최종적으로 given(transactionRepository.save())된 transaction값을 검사(의미있는 값은 해당 mocking값 뿐임)
         Transaction transaction = verify(transactionRepository, times(1)).save(captor.capture());
         assertEquals(29000L, captor.getValue().getBalanceSnapshot());
 
         assertEquals(S, transactionDto.getTransactionResultType());
         assertEquals(9000L, transactionDto.getBalanceSnapshot());
         assertEquals(USE, transactionDto.getTransactionType());
-
-        // captor에 저장된 값(= transaction을 repository에 save할 때 argument 로 넘어가는 Trnasaction객체 검사
     }
 
     @Test
@@ -109,7 +105,6 @@ class TransactionServiceTest {
 
         //then
         assertEquals(ErrorCode.USER_NOT_FOUND, accountException.getErrorCode());
-        // accountService 실행 시 던져진 AccountException을 받아서 두번째 검사 진행
     }
 
     @Test
@@ -219,9 +214,6 @@ class TransactionServiceTest {
                 .accountStatus(IN_USE)
                 .balance(10000L)
                 .accountNumber("1000000012").build();
-
-//        given(accountUserRepository.findById(anyLong()))
-//                .willReturn(Optional.of(pobi));
         given(accountRepository.findByAccountNumber(anyString()))
                 .willReturn(Optional.of(account));
 
@@ -251,8 +243,6 @@ class TransactionServiceTest {
     void successCancelUseBalance() {
         //given
         AccountUser pobi = AccountUser.builder().id(12L).name("Pobi").build();
-
-        // cancel 할 때는 user 누군지는 확인하지 않는다.
 
         Account account = Account.builder()
                 .accountUser(pobi)
@@ -293,7 +283,6 @@ class TransactionServiceTest {
                 ArgumentCaptor.forClass(Transaction.class);
 
         //then
-        // 최종적으로 given(transactionRepository.save())된 transaction값을 검사(의미있는 값은 해당 mocking값 뿐임)
         Transaction transactionCap = verify(transactionRepository, times(1)).save(captor.capture());
 
         assertEquals( 30000L, captor.getValue().getAmount());
@@ -303,8 +292,6 @@ class TransactionServiceTest {
 
         assertEquals(9000L, transactionDto.getBalanceSnapshot());
         assertEquals(CANCEL, transactionDto.getTransactionType());
-
-        // captor에 저장된 값(= transaction을 repository에 save할 때 argument 로 넘어가는 Trnasaction객체 검사
     }
 
     @Test

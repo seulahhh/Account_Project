@@ -4,7 +4,6 @@ import com.example.account.type.TransactionResultType;
 import com.example.account.type.TransactionType;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -30,6 +29,4 @@ public class QueryTransactionResponse {
                 .transactedAt(transactionDto.getTransactedAt())
                 .build();
     }
-    // useBalance와 같은 로직이라고 해도, 혼란을 주지 않기 위해 각자 비즈니스마다
-    // Reqeust, Response 클래스를 따로 정의하는 것이 바람직
-}
+    }

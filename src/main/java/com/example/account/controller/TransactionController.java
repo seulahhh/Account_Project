@@ -11,13 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-
-/**
- * 잔액 관련 컨트롤러
- * 1. 잔액 사용
- * 2. 잔액 사용 취소
- * 3. 거래 확인
- */
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -32,8 +25,6 @@ public class TransactionController {
                             request.getAccountNumber(), request.getAmount())
             );
         } catch (AccountException e) {
-            // 비즈니스적으로 우리가 만든 에러가 발생했을 경우를 정의해 줌
-            // <== Transaction은 실패건도 save 해야 하기 때문에 예외만 던지고 끝나면 안됨.
             log.error("Failed to use balance. ");
 
             transactionService.saveFailedUseTransaction(

@@ -7,7 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
     // ? 'Enum도 클래스'이다. = 생성자를 만들 수 있음
-    // 생성자를 자동으로 만들어 줬기 때문에 이렇게 description을 받을 수 있음
     INVALID_REQUEST("잘못된 요청입니다."),
     USER_NOT_FOUND("사용자가 없습니다."),
     MAX_ACCOUNT_PER_USER_10("사용자 최대 계좌는 10개입니다."),
